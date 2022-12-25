@@ -1,64 +1,56 @@
 ﻿using ConsoleApp.Extensions;
 using Newtonsoft.Json;
+using System;
 using System.Data;
 
 namespace ConsoleApp.JsonConverters
 {
-    internal class DataRowCollectionConverter : JsonConverter
+    internal class DataRowCollectionConverter : JsonConverter<DataRowCollection>
     {
-        private readonly JsonConverter _converter;
+        private readonly JsonConverter<DataRow> _dataRowConverter;
 
-        public DataRowCollectionConverter(JsonConverter converter)
+        public DataRowCollectionConverter(JsonConverter<DataRow> dataRowConverter)
         {
-            _converter = converter;
+            _dataRowConverter = dataRowConverter;
         }
 
-        public override bool CanConvert(Type objectType)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
+        public override DataRowCollection? ReadJson(
+            JsonReader reader,
+            Type objectType,
+            DataRowCollection? existingValue,
+            bool hasExistingValue,
+            JsonSerializer serializer)
         {
             reader.ReadAndValidatePropertyName("Rows");
 
+            reader.ReadAndValidateJsonToken(JsonToken.StartArray);
+
             reader.Read();
 
-            reader.ValidateJsonToken(JsonToken.StartArray);
-
-            List<object[]> rows = new List<object[]>();
-
-            while (true)
+            while (reader.TokenType != JsonToken.EndArray)
             {
-                var row = (object[])_converter.ReadJson(reader, typeof(object[]), null, serializer);
+                var row = existingValue.Add();
 
-                if (row == null)
-                {
-                    break;
-                }
-                else
-                {
-                    rows.Add(row);
-                }
+                _dataRowConverter.ReadJson(reader, typeof(DataRow), row, true, serializer);
+
+                reader.Read();
             }
 
-            return rows.ToArray();
+            reader.ValidateJsonToken(JsonToken.EndArray);
+
+            return null;
         }
 
-        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, DataRowCollection? value, JsonSerializer serializer)
         {
             writer.WritePropertyName("Rows");
 
             writer.WriteStartArray();
 
-            writer.WriteStartArray();
-
-            foreach(var row in (DataRow[])value)
+            foreach (var row in value.ToArray<DataRow>())
             {
-                _converter.WriteJson(writer, row, serializer);
+                _dataRowConverter.WriteJson(writer, row, serializer);
             }
-
-            writer.WriteEndArray();
 
             writer.WriteEndArray();
         }

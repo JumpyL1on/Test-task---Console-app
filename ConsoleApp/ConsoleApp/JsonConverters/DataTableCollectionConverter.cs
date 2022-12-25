@@ -4,51 +4,51 @@ using System.Data;
 
 namespace ConsoleApp.JsonConverters
 {
-    internal class DataTableCollectionConverter : JsonConverter<DataTable[]>
+    internal class DataTableCollectionConverter : JsonConverter<DataTableCollection>
     {
-        private readonly JsonConverter<DataTable> _converter;
+        private readonly JsonConverter<DataTable> _dataTableConverter;
 
-        public DataTableCollectionConverter(JsonConverter<DataTable> converter)
+        public DataTableCollectionConverter(JsonConverter<DataTable> dataTableConverter)
         {
-            _converter = converter;
+            _dataTableConverter = dataTableConverter;
         }
 
-        public override DataTable[]? ReadJson(JsonReader reader, Type objectType, DataTable[]? existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override DataTableCollection? ReadJson(
+            JsonReader reader,
+            Type objectType,
+            DataTableCollection? existingValue,
+            bool hasExistingValue,
+            JsonSerializer serializer)
         {
             reader.ReadAndValidatePropertyName("Tables");
 
+            reader.ReadAndValidateJsonToken(JsonToken.StartArray);
+
             reader.Read();
 
-            reader.ValidateJsonToken(JsonToken.StartArray);
-
-            var tables = new List<DataTable>();
-
-            while (true)
+            while (reader.TokenType != JsonToken.EndArray)
             {
-                var table = _converter.ReadJson(reader, typeof(DataTable), null, false, serializer);
+                var table = existingValue.Add();
 
-                if (table == null)
-                {
-                    break;
-                }
-                else
-                {
-                    tables.Add(table);
-                }
+                _dataTableConverter.ReadJson(reader, typeof(DataTable), table, true, serializer);
+
+                reader.Read();
             }
 
-            return tables.ToArray();
+            reader.ValidateJsonToken(JsonToken.EndArray);
+
+            return null;
         }
 
-        public override void WriteJson(JsonWriter writer, DataTable[]? value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, DataTableCollection? value, JsonSerializer serializer)
         {
             writer.WritePropertyName("Tables");
 
             writer.WriteStartArray();
 
-            foreach (var table in value)
+            foreach (var table in value.ToArray<DataTable>())
             {
-                _converter.WriteJson(writer, table, serializer);
+                _dataTableConverter.WriteJson(writer, table, serializer);
             }
 
             writer.WriteEndArray();

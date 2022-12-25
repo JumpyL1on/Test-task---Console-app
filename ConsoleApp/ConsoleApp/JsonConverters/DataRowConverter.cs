@@ -1,48 +1,40 @@
 ﻿using ConsoleApp.Extensions;
 using Newtonsoft.Json;
+using System;
 using System.Data;
 
 namespace ConsoleApp.JsonConverters
 {
-    internal class DataRowConverter : JsonConverter
+    internal class DataRowConverter : JsonConverter<DataRow>
     {
-        public override bool CanConvert(Type objectType)
+        public override DataRow? ReadJson(
+            JsonReader reader,
+            Type objectType,
+            DataRow? existingValue, 
+            bool hasExistingValue,
+            JsonSerializer serializer)
         {
-            throw new NotImplementedException();
-        }
-
-        public override object? ReadJson(JsonReader reader, Type objectType, object? existingValue, JsonSerializer serializer)
-        {
-            reader.Read();
-
-            if (reader.TokenType == JsonToken.EndArray)
-            {
-                return null;
-            }
-
             reader.ValidateJsonToken(JsonToken.StartArray);
 
             reader.Read();
 
-            var values = new List<object>();
-
-            while (reader.TokenType != JsonToken.EndArray)
+            for (var i = 0; reader.TokenType != JsonToken.EndArray; i++)
             {
-                values.Add(reader.Value);
+                existingValue.SetField(i, reader.Value);
 
                 reader.Read();
             }
 
-            return values.ToArray();
+            reader.ValidateJsonToken(JsonToken.EndArray);
+
+            return null;
         }
 
-        public override void WriteJson(JsonWriter writer, object? value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, DataRow? value, JsonSerializer serializer)
         {
-            var row = (DataRow)value;
-
             writer.WriteStartArray();
 
-            foreach (var e in row.ItemArray)
+            foreach (var e in value.ItemArray)
             {
                 writer.WriteValue(e);
             }

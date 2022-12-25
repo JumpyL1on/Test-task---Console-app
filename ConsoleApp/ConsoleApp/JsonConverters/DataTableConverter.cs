@@ -6,57 +6,54 @@ namespace ConsoleApp.JsonConverters
 {
     internal class DataTableConverter : JsonConverter<DataTable>
     {
-        private readonly JsonConverter<DataColumn[]> _columnsConverter;
-        private readonly JsonConverter _rowsConverter;
+        private readonly JsonConverter<DataColumnCollection> _dataColumnCollectionConverter;
+        private readonly JsonConverter<DataRowCollection> _dataRowCollectionConverter;
 
-        public DataTableConverter(JsonConverter<DataColumn[]> columnsConverter, JsonConverter rowsConverter)
+        public DataTableConverter(
+            JsonConverter<DataColumnCollection> dataColumnCollectionConverter,
+            JsonConverter<DataRowCollection> dataRowCollectionConverter)
         {
-            _columnsConverter = columnsConverter;
-            _rowsConverter = rowsConverter;
+            _dataColumnCollectionConverter = dataColumnCollectionConverter;
+            _dataRowCollectionConverter = dataRowCollectionConverter;
         }
 
-        public override DataTable? ReadJson(JsonReader reader, Type objectType, DataTable? existingValue, bool hasExistingValue, JsonSerializer serializer)
+        public override DataTable? ReadJson(
+            JsonReader reader,
+            Type objectType,
+            DataTable? existingValue,
+            bool hasExistingValue,
+            JsonSerializer serializer)
         {
-            reader.Read();
-
-            if (reader.TokenType == JsonToken.EndArray)
-            {
-                return null;
-            }
-
             reader.ValidateJsonToken(JsonToken.StartObject);
 
-            var table = existingValue ?? new DataTable();
+            reader.ReadAndValidatePropertyName(nameof(existingValue.TableName));
 
-            reader.ReadAndValidatePropertyName(nameof(table.TableName));
+            reader.ReadAndValidateJsonToken(JsonToken.String);
 
-            reader.Read();
+            existingValue.TableName = reader.Value.ToString();
 
-            table.TableName = reader.Value.ToString();
+            _dataColumnCollectionConverter.ReadJson(reader, typeof(DataColumnCollection), existingValue.Columns, true, serializer);
 
-            table.Columns.AddRange(_columnsConverter.ReadJson(reader, typeof(DataColumn[]), null, false, serializer));
+            _dataRowCollectionConverter.ReadJson(reader, typeof(DataRowCollection), existingValue.Rows, true, serializer);
 
-            foreach (var row in (object[][])_rowsConverter.ReadJson(reader, typeof(object[]), null, serializer))
+            try
             {
-                table.Rows.Add(row);
+                reader.ReadAndValidatePropertyName("DeletedRows");
+
+                reader.ReadAndValidateJsonToken(JsonToken.StartArray);
+
+                reader.ReadAndValidateJsonToken(JsonToken.EndArray);
+
+                reader.ReadAndValidateJsonToken(JsonToken.EndObject);
+
+                return null;
             }
-
-            reader.Read();
-
-            if (reader.TokenType == JsonToken.PropertyName)
+            catch (JsonSerializationException)
             {
-                reader.Read();
+                reader.ValidateJsonToken(JsonToken.EndObject);
 
-                reader.ValidateJsonToken(JsonToken.StartArray);
-
-                reader.Read();
-
-                reader.ValidateJsonToken(JsonToken.EndArray);
-
-                reader.Read();
+                return null;
             }
-
-            return table;
         }
 
         public override void WriteJson(JsonWriter writer, DataTable? value, JsonSerializer serializer)
@@ -67,9 +64,9 @@ namespace ConsoleApp.JsonConverters
 
             writer.WriteValue(value.TableName);
 
-            _columnsConverter.WriteJson(writer, value.Columns.ToArray<DataColumn>(), serializer);
+            _dataColumnCollectionConverter.WriteJson(writer, value.Columns, serializer);
 
-            _rowsConverter.WriteJson(writer, value.Rows.ToArray<DataRow>(), serializer);
+            _dataRowCollectionConverter.WriteJson(writer, value.Rows, serializer);
 
             writer.WritePropertyName("DeletedRows");
 

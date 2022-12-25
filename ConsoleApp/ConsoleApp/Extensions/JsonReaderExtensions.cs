@@ -4,24 +4,14 @@ namespace ConsoleApp.Extensions
 {
     internal static class JsonReaderExtensions
     {
-        internal static void ReadAndValidatePropertyName(this JsonReader reader, string name)
-        {
-            if (reader.TokenType != JsonToken.PropertyName)
-            {
-                reader.Read();
-            }
-
-            ValidatePropertyName(reader, name);
-        }
-
-        internal static void ReadAndValidateJsonToken(this JsonReader reader, JsonToken token)
+        public static void ReadAndValidateJsonToken(this JsonReader reader, JsonToken token)
         {
             reader.Read();
 
             ValidateJsonToken(reader, token);
         }
 
-        internal static void ValidateJsonToken(this JsonReader reader, JsonToken token)
+        public static void ValidateJsonToken(this JsonReader reader, JsonToken token)
         {
             if (reader.TokenType != token)
             {
@@ -29,7 +19,21 @@ namespace ConsoleApp.Extensions
             }
         }
 
-        private static void ValidatePropertyName(this JsonReader reader, string name)
+        public static void ReadAndValidatePropertyName(this JsonReader reader, string name)
+        {
+            if (reader.TokenType == JsonToken.PropertyName)
+            {
+                ValidatePropertyName(reader, name);
+            }
+            else
+            {
+                reader.Read();
+
+                ValidatePropertyName(reader, name);
+            }
+        }
+
+        public static void ValidatePropertyName(this JsonReader reader, string name)
         {
             if (reader.TokenType != JsonToken.PropertyName || reader.Value?.ToString() != name)
             {

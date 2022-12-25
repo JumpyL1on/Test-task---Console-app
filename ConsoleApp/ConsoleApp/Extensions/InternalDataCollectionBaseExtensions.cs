@@ -4,7 +4,8 @@ namespace ConsoleApp.Extensions
 {
     internal static class InternalDataCollectionBaseExtensions
     {
-        internal static T[] ToArray<T>(this InternalDataCollectionBase collection)
+        public static T[] ToArray<T>(this InternalDataCollectionBase collection)
+            where T : class
         {
             var array = new T[collection.Count];
 

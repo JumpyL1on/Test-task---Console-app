@@ -6,11 +6,11 @@ namespace ConsoleApp.JsonConverters
 {
     internal class DataSetConverter : JsonConverter<DataSet>
     {
-        private readonly JsonConverter _dataTableCollectionConverter;
+        private readonly JsonConverter<DataTableCollection> _dataTableCollectionConverter;
 
-        public DataSetConverter(JsonConverter converter)
+        public DataSetConverter(JsonConverter<DataTableCollection> dataTableCollectionConverter)
         {
-            _dataTableCollectionConverter = converter;
+            _dataTableCollectionConverter = dataTableCollectionConverter;
         }
 
         public override DataSet? ReadJson(
@@ -27,23 +27,21 @@ namespace ConsoleApp.JsonConverters
 
             reader.ValidateJsonToken(JsonToken.StartObject);
 
-            var ds = existingValue ?? new DataSet();
+            var dataSet = existingValue ?? new DataSet();
 
-            reader.ReadAndValidatePropertyName(nameof(ds.DataSetName));
+            reader.ReadAndValidatePropertyName(nameof(dataSet.DataSetName));
 
             reader.ReadAndValidateJsonToken(JsonToken.String);
 
-            ds.DataSetName = reader.Value.ToString();
+            dataSet.DataSetName = reader.Value.ToString();
 
-            var tables = _dataTableCollectionConverter.ReadJson(reader, typeof(DataTable[]), null, serializer);
-
-            ds.Tables.AddRange((DataTable[])tables);
+            _dataTableCollectionConverter.ReadJson(reader, typeof(DataTableCollection), dataSet.Tables, true, serializer);
 
             reader.ReadAndValidateJsonToken(JsonToken.EndObject);
 
             reader.Read();
 
-            return ds;
+            return dataSet;
         }
 
         public override void WriteJson(JsonWriter writer, DataSet? value, JsonSerializer serializer)
@@ -60,7 +58,7 @@ namespace ConsoleApp.JsonConverters
 
             writer.WriteValue(value.DataSetName);
 
-            _dataTableCollectionConverter.WriteJson(writer, value.Tables.ToArray<DataTable>(), serializer);
+            _dataTableCollectionConverter.WriteJson(writer, value.Tables, serializer);
 
             writer.WriteEndObject();
         }

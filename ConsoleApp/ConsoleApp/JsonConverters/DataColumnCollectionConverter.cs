@@ -5,12 +5,12 @@ using System.Data;
 
 namespace ConsoleApp.JsonConverters
 {
-    internal class DataColumnCollectionConverter : JsonConverter<DataColumn[]>
+    internal class DataColumnCollectionConverter : JsonConverter<DataColumnCollection>
     {
-        public override DataColumn[]? ReadJson(
+        public override DataColumnCollection? ReadJson(
             JsonReader reader,
             Type objectType,
-            DataColumn[]? existingValue,
+            DataColumnCollection? existingValue,
             bool hasExistingValue,
             JsonSerializer serializer)
         {
@@ -23,33 +23,31 @@ namespace ConsoleApp.JsonConverters
                 return null;
             }
 
-            reader.Read();
-
-            reader.ValidateJsonToken(JsonToken.StartArray);
+            reader.ReadAndValidateJsonToken(JsonToken.StartArray);
 
             reader.Read();
-
-            var columns = new List<DataColumn>();
 
             while (reader.TokenType != JsonToken.EndArray)
             {
                 var column = reader.Value.ToString().Split(':');
 
-                columns.Add(new DataColumn(column[0], ResolveColumnType((ColumnType)int.Parse(column[1]))));
+                existingValue.Add(column[0], ResolveColumnType((ColumnType)int.Parse(column[1])));
 
                 reader.Read();
             }
 
-            return columns.ToArray();
+            reader.ValidateJsonToken(JsonToken.EndArray);
+
+            return null;
         }
 
-        public override void WriteJson(JsonWriter writer, DataColumn[]? value, JsonSerializer serializer)
+        public override void WriteJson(JsonWriter writer, DataColumnCollection? value, JsonSerializer serializer)
         {
             writer.WritePropertyName("Columns");
 
             writer.WriteStartArray();
 
-            foreach(var column in value)
+            foreach(var column in value.ToArray<DataColumn>())
             {
                 writer.WriteValue($"{column.ColumnName}:{(int)ResolveType(column.DataType)}");
             }

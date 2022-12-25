@@ -2,27 +2,37 @@
 using ConsoleApp.Services;
 using Newtonsoft.Json;
 using System.Data;
-using System.Diagnostics;
 
 var httpClient = new HttpClient()
 {
     BaseAddress = new Uri("https://keysystems.ru/files/misc/tasks/")
 };
 
-var converter = new DataSetConverter(
-    new DataTableCollectionConverter(
-        new DataTableConverter(
-            new DataColumnCollectionConverter(),
-            new DataRowCollectionConverter(
-                new DataRowConverter()))));
+var dataSetService = new DataSetService(httpClient, CreateDataSetConverter());
 
-var service = new DataSetService(httpClient, converter);
+var doc1 = await dataSetService.GetFromUrlAsync("doc1.json");
 
-var docs = await service.Foo();
+var doc2 = await dataSetService.GetFromUrlAsync("doc2.json");
 
-for (var i = 0; i < 2; i++)
+(var formedDoc1, var formedDoc2) = await dataSetService.FormFromIncomplete(doc1, doc2);
+
+HTMLService.SaveAsHTMLFile(formedDoc1, $"{nameof(doc1)}.html");
+
+HTMLService.SaveAsHTMLFile(formedDoc2, $"{nameof(doc2)}.html");
+
+static JsonConverter<DataSet> CreateDataSetConverter()
 {
-    var j = i + 1;
+    var dataColumnCollectionConverter = new DataColumnCollectionConverter();
 
-    service.SaveAsHTMLFile(docs[i], $"doc{j}.html");
+    var dataRowConverter = new DataRowConverter();
+
+    var dataRowCollectionConverter = new DataRowCollectionConverter(dataRowConverter);
+
+    var dataTableConverter = new DataTableConverter(dataColumnCollectionConverter, dataRowCollectionConverter);
+
+    var dataTableCollectionConverter = new DataTableCollectionConverter(dataTableConverter);
+
+    var dataSetConverter = new DataSetConverter(dataTableCollectionConverter);
+
+    return dataSetConverter;
 }
