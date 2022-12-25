@@ -39,8 +39,6 @@ namespace ConsoleApp.JsonConverters
 
             reader.ReadAndValidateJsonToken(JsonToken.EndObject);
 
-            reader.Read();
-
             return dataSet;
         }
 

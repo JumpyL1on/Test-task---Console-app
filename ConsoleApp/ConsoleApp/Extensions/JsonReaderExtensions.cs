@@ -4,9 +4,17 @@ namespace ConsoleApp.Extensions
 {
     internal static class JsonReaderExtensions
     {
+        public static void ReadAndAssert(this JsonReader reader)
+        {
+            if (!reader.Read())
+            {
+                throw new JsonSerializationException("Unexpected end when reading JSON.");
+            }
+        }
+
         public static void ReadAndValidateJsonToken(this JsonReader reader, JsonToken token)
         {
-            reader.Read();
+            reader.ReadAndAssert();
 
             ValidateJsonToken(reader, token);
         }
@@ -15,7 +23,7 @@ namespace ConsoleApp.Extensions
         {
             if (reader.TokenType != token)
             {
-                throw new JsonSerializationException($"{token} token was expected");
+                throw new JsonSerializationException($"Unexpected JSON token. Expected {token}, got {reader.TokenType}.");
             }
         }
 
@@ -27,7 +35,7 @@ namespace ConsoleApp.Extensions
             }
             else
             {
-                reader.Read();
+                reader.ReadAndAssert();
 
                 ValidatePropertyName(reader, name);
             }
@@ -37,7 +45,7 @@ namespace ConsoleApp.Extensions
         {
             if (reader.TokenType != JsonToken.PropertyName || reader.Value?.ToString() != name)
             {
-                throw new JsonSerializationException($"{JsonToken.PropertyName} token was expected");
+                throw new JsonSerializationException($"Unexpected PropertyName. Expected {name}, got {reader.Value}");
             }
         }
     }

@@ -35,11 +35,11 @@ namespace ConsoleApp.Services
                 {
                     if (j == table1.Columns.Count)
                     {
-                        table1.AddColumnAndCellToTableFromAnotherTable(columns[j], j, table2.Rows[0].ItemArray[j]);
+                        table1.AddColumnAndCellFromAnotherTable(columns[j], j, table2.Rows[0].ItemArray[j]);
                     }
                     else if (j == table2.Columns.Count)
                     {
-                        table2.AddColumnAndCellToTableFromAnotherTable(columns[j], j, table1.Rows[0].ItemArray[j]);
+                        table2.AddColumnAndCellFromAnotherTable(columns[j], j, table1.Rows[0].ItemArray[j]);
                     }
                     else
                     {
@@ -50,11 +50,11 @@ namespace ConsoleApp.Services
                         {
                             if (column1 == columns[j].ColumnName)
                             {
-                                table2.AddColumnAndCellToTableFromAnotherTable(columns[j], j, table1.Rows[0].ItemArray[j]);
+                                table2.AddColumnAndCellFromAnotherTable(columns[j], j, table1.Rows[0].ItemArray[j]);
                             }
                             else
                             {
-                                table1.AddColumnAndCellToTableFromAnotherTable(columns[j], j, table2.Rows[0].ItemArray[j]);
+                                table1.AddColumnAndCellFromAnotherTable(columns[j], j, table2.Rows[0].ItemArray[j]);
                             }
                         }
                     }

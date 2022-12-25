@@ -20,6 +20,8 @@ namespace ConsoleApp.JsonConverters
             bool hasExistingValue,
             JsonSerializer serializer)
         {
+            _ = existingValue ?? throw new ArgumentNullException(nameof(existingValue));
+
             reader.ReadAndValidatePropertyName("Tables");
 
             reader.ReadAndValidateJsonToken(JsonToken.StartArray);

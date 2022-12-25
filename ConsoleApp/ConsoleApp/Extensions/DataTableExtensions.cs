@@ -12,14 +12,14 @@ namespace ConsoleApp.Extensions
             }
         }
 
-        public static void AddColumnAndCellToTableFromAnotherTable(
+        public static void AddColumnAndCellFromAnotherTable(
             this DataTable table,
             DataColumn column,
             int columnIndex,
             object? value)
         {
-            table
-                .Columns.Add(column.ColumnName, column.DataType)
+            table.Columns
+                .Add(column.ColumnName, column.DataType)
                 .SetOrdinal(columnIndex);
 
             table.Rows[0].SetField(columnIndex, value);

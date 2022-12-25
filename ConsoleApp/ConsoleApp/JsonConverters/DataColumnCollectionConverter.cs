@@ -14,6 +14,8 @@ namespace ConsoleApp.JsonConverters
             bool hasExistingValue,
             JsonSerializer serializer)
         {
+            _ = existingValue ?? throw new ArgumentNullException(nameof(existingValue));
+
             try
             {
                 reader.ReadAndValidatePropertyName("Columns");
