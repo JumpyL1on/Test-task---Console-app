@@ -27,7 +27,7 @@ namespace ConsoleApp.JsonConverters
 
             reader.ReadAndValidateJsonToken(JsonToken.StartArray);
 
-            reader.Read();
+            reader.ReadAndAssert();
 
             while (reader.TokenType != JsonToken.EndArray)
             {
@@ -35,7 +35,7 @@ namespace ConsoleApp.JsonConverters
 
                 existingValue.Add(column[0], ResolveColumnType((ColumnType)int.Parse(column[1])));
 
-                reader.Read();
+                reader.ReadAndAssert();
             }
 
             reader.ValidateJsonToken(JsonToken.EndArray);

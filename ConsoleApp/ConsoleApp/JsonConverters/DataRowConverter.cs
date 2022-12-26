@@ -18,13 +18,13 @@ namespace ConsoleApp.JsonConverters
 
             reader.ValidateJsonToken(JsonToken.StartArray);
 
-            reader.Read();
+            reader.ReadAndAssert();
 
             for (var i = 0; reader.TokenType != JsonToken.EndArray; i++)
             {
                 existingValue.SetField(i, reader.Value);
 
-                reader.Read();
+                reader.ReadAndAssert();
             }
 
             reader.ValidateJsonToken(JsonToken.EndArray);

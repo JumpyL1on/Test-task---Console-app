@@ -26,7 +26,7 @@ namespace ConsoleApp.JsonConverters
 
             reader.ReadAndValidateJsonToken(JsonToken.StartArray);
 
-            reader.Read();
+            reader.ReadAndAssert();
 
             while (reader.TokenType != JsonToken.EndArray)
             {
@@ -34,7 +34,7 @@ namespace ConsoleApp.JsonConverters
 
                 _dataTableConverter.ReadJson(reader, typeof(DataTable), table, true, serializer);
 
-                reader.Read();
+                reader.ReadAndAssert();
             }
 
             reader.ValidateJsonToken(JsonToken.EndArray);

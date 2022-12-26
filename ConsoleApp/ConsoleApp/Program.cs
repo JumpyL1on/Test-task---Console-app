@@ -20,7 +20,7 @@ HTMLService.SaveAsHTMLFile(formedDoc1, $"{nameof(doc1)}.html");
 
 HTMLService.SaveAsHTMLFile(formedDoc2, $"{nameof(doc2)}.html");
 
-Console.WriteLine("Press any key to close this window . . .");
+Console.Write("Press any key to close this window . . .");
 
 Console.ReadKey();
 
