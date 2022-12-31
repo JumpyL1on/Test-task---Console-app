@@ -33,7 +33,7 @@ namespace ConsoleApp.JsonConverters
             {
                 var column = reader.Value.ToString().Split(':');
 
-                existingValue.Add(column[0], ResolveColumnType((ColumnType)int.Parse(column[1])));
+                existingValue.Add(column[0], ResolveColumnType(Enum.Parse<ColumnType>(column[1])));
 
                 reader.ReadAndAssert();
             }
@@ -49,7 +49,7 @@ namespace ConsoleApp.JsonConverters
 
             writer.WriteStartArray();
 
-            foreach(var column in value.ToArray<DataColumn>())
+            foreach(var column in value.OfType<DataColumn>())
             {
                 writer.WriteValue($"{column.ColumnName}:{(int)ResolveType(column.DataType)}");
             }

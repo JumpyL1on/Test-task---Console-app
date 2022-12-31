@@ -12,7 +12,7 @@ namespace ConsoleApp.Services
 
             var path = Path.Combine(Directory.GetCurrentDirectory(), fileName);
 
-            foreach (var dataTable in ds.Tables.ToArray<DataTable>())
+            foreach (var dataTable in ds.Tables.OfType<DataTable>())
             {
                 var div = (HTMLDivElement)document.CreateElement("div");
 

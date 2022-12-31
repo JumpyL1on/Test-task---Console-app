@@ -48,7 +48,7 @@ namespace ConsoleApp.JsonConverters
 
             writer.WriteStartArray();
 
-            foreach (var table in value.ToArray<DataTable>())
+            foreach (var table in value.OfType<DataTable>())
             {
                 _dataTableConverter.WriteJson(writer, table, serializer);
             }

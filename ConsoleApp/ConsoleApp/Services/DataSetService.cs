@@ -15,7 +15,7 @@ namespace ConsoleApp.Services
             _dataSetConverter = dataSetConverter;
         }
 
-        public async Task<(DataSet doc1, DataSet doc2)> FormFromIncomplete(DataSet doc1, DataSet doc2)
+        public (DataSet doc1, DataSet doc2) FormFromIncomplete(DataSet doc1, DataSet doc2)
         {
             for (var i = 0; i < doc1.Tables.Count; i++)
             {
@@ -28,18 +28,18 @@ namespace ConsoleApp.Services
                 table2.AddRowIfThereIsNo();
 
                 var columns = table1.Columns.Count >= table2.Columns.Count
-                    ? table1.Columns.ToArray<DataColumn>()
-                    : table2.Columns.ToArray<DataColumn>();
+                    ? table1.Columns.OfType<DataColumn>().ToArray()
+                    : table2.Columns.OfType<DataColumn>().ToArray();
 
                 for (var j = 0; j < columns.Length; j++)
                 {
                     if (j == table1.Columns.Count)
                     {
-                        table1.AddColumnAndCellFromAnotherTable(columns[j], j, table2.Rows[0].ItemArray[j]);
+                        AddColumnAndCellFromAnotherTable(table1, columns[j], table2.Rows[0].ItemArray[j]);
                     }
                     else if (j == table2.Columns.Count)
                     {
-                        table2.AddColumnAndCellFromAnotherTable(columns[j], j, table1.Rows[0].ItemArray[j]);
+                        AddColumnAndCellFromAnotherTable(table2, columns[j], table1.Rows[0].ItemArray[j]);
                     }
                     else
                     {
@@ -50,11 +50,11 @@ namespace ConsoleApp.Services
                         {
                             if (column1 == columns[j].ColumnName)
                             {
-                                table2.AddColumnAndCellFromAnotherTable(columns[j], j, table1.Rows[0].ItemArray[j]);
+                                AddColumnAndCellFromAnotherTable(table2, columns[j], table1.Rows[0].ItemArray[j]);
                             }
                             else
                             {
-                                table1.AddColumnAndCellFromAnotherTable(columns[j], j, table2.Rows[0].ItemArray[j]);
+                                AddColumnAndCellFromAnotherTable(table1, columns[j], table2.Rows[0].ItemArray[j]);
                             }
                         }
                     }
@@ -69,6 +69,13 @@ namespace ConsoleApp.Services
             var json = await _httpClient.GetStringAsync(fileName);
 
             return JsonConvert.DeserializeObject<DataSet>(json, _dataSetConverter);
+        }
+
+        private static void AddColumnAndCellFromAnotherTable(DataTable table, DataColumn column, object? value)
+        {
+            table.AddColumnFromAnotherTable(column);
+
+            table.AddCellFromAnotherTable(column.Ordinal, 0, value);
         }
     }
 }

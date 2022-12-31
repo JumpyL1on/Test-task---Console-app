@@ -14,7 +14,7 @@ var doc1 = await dataSetService.GetFromUrlAsync("doc1.json");
 
 var doc2 = await dataSetService.GetFromUrlAsync("doc2.json");
 
-(var formedDoc1, var formedDoc2) = await dataSetService.FormFromIncomplete(doc1, doc2);
+(var formedDoc1, var formedDoc2) = dataSetService.FormFromIncomplete(doc1, doc2);
 
 HTMLService.SaveAsHTMLFile(formedDoc1, $"{nameof(doc1)}.html");
 

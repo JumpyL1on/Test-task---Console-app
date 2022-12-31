@@ -12,17 +12,16 @@ namespace ConsoleApp.Extensions
             }
         }
 
-        public static void AddColumnAndCellFromAnotherTable(
-            this DataTable table,
-            DataColumn column,
-            int columnIndex,
-            object? value)
+        public static void AddColumnFromAnotherTable(this DataTable table, DataColumn column)
         {
             table.Columns
                 .Add(column.ColumnName, column.DataType)
-                .SetOrdinal(columnIndex);
+                .SetOrdinal(column.Ordinal);
+        }
 
-            table.Rows[0].SetField(columnIndex, value);
+        public static void AddCellFromAnotherTable(this DataTable table, int columnIndex, int rowIndex, object? value)
+        {
+            table.Rows[rowIndex].SetField(columnIndex, value);
         }
     }
 }

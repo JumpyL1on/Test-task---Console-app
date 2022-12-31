@@ -49,7 +49,7 @@ namespace ConsoleApp.JsonConverters
 
             writer.WriteStartArray();
 
-            foreach (var row in value.ToArray<DataRow>())
+            foreach (var row in value.OfType<DataRow>())
             {
                 _dataRowConverter.WriteJson(writer, row, serializer);
             }
