@@ -81,7 +81,7 @@ namespace ConsoleApp.JsonConverters
                 ColumnType.String => typeof(string),
                 ColumnType.Guid => typeof(Guid),
                 ColumnType.Array => typeof(Array),
-                _ => throw new ArgumentException("Not supported column type"),
+                _ => throw new ArgumentOutOfRangeException(nameof(type), "Not supported column type"),
             };
         }
 
@@ -165,7 +165,7 @@ namespace ConsoleApp.JsonConverters
                 return ColumnType.Array;
             }
 
-            throw new ArgumentException("Not supported type");
+            throw new ArgumentOutOfRangeException(nameof(type), "Not supported type");
         }
     }
 }
