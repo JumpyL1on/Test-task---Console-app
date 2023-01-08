@@ -15,7 +15,7 @@ namespace ConsoleApp.Services
             _dataSetConverter = dataSetConverter;
         }
 
-        public (DataSet doc1, DataSet doc2) FormFromIncomplete(DataSet doc1, DataSet doc2)
+        public static (DataSet doc1, DataSet doc2) FormFromIncomplete(DataSet doc1, DataSet doc2)
         {
             for (var i = 0; i < doc1.Tables.Count; i++)
             {
@@ -75,7 +75,7 @@ namespace ConsoleApp.Services
         {
             table.AddColumnFromAnotherTable(column);
 
-            table.AddCellFromAnotherTable(column.Ordinal, 0, value);
+            table.AddCellFromAnotherTable(0, column.Ordinal, value);
         }
     }
 }

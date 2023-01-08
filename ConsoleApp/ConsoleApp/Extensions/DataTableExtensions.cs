@@ -19,7 +19,7 @@ namespace ConsoleApp.Extensions
                 .SetOrdinal(column.Ordinal);
         }
 
-        public static void AddCellFromAnotherTable(this DataTable table, int columnIndex, int rowIndex, object? value)
+        public static void AddCellFromAnotherTable(this DataTable table, int rowIndex, int columnIndex, object? value)
         {
             table.Rows[rowIndex].SetField(columnIndex, value);
         }
